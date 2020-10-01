@@ -1,0 +1,14 @@
+{
+  "name": "commerceiq_home_assignment",
+  "version": "1.0.0",
+  "description": "This is a take home assignment being solved for commerceiq",
+  "main": "server.js",
+  "scripts": {
+    "test": "npm test"
+  },
+  "author": "Puneeth N Naik",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}
