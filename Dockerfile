@@ -4,6 +4,6 @@ COPY . /home/workspace
 
 WORKDIR /home/workspace
 
-EXPOSE 3001
+EXPOSE 8080
 
 CMD [ "npm", "start" ]

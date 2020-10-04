@@ -4,7 +4,8 @@
   "description": "This is a take home assignment being solved for commerceiq",
   "main": "server.js",
   "scripts": {
-    "test": "mocha --timeout 12000 --exit"
+    "test": "mocha --timeout 12000 --exit",
+    "start": "node server.js"
   },
   "author": "Puneeth N Naik",
   "license": "MIT",

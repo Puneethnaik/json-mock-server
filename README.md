@@ -2,9 +2,14 @@
 
 # Concurrency details of various methods
 - GET: Reading the state provides eventual consistency; reads will eventually read the latest state of the datastore.
-- POST: 
+- POST: No concurrency control, no conflicts as if A and B both make POST requests whoever successfully completes the request(lets say A), these changes will NOT BE OVERRIDDEN as an IntegrityViolationError is raised for Bs request, and is not processed.
 - PUT: Optimistic concurrency control through ETag
-- DELETE: 
+- DELETE: Optimistic concurrency control through ETag 
+
+# Granularity of concurrency
+Right now, the modified time of store.json file is considered, which means the granularity of concurrency is on the whole file. 
+This means that if two requests are updating any resource simultaneously, the second request is not allowed. 
+
 
 # Reference
 - https://blog.4psa.com/rest-best-practices-managing-concurrent-updates/
