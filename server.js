@@ -12,7 +12,7 @@ const app = express()
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 
-const port = 3001
+const port = 8080
 
 app.get('/:entity', (req, res) => {
     datastore.find(req.params.entity, req.query).then(result => {
