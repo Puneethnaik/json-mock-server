@@ -36,8 +36,14 @@ const find = (entity, conditions) => {
                         let shouldInclude = true
                         for (const condition in conditions) {
                             if (condition.indexOf('_') == -1) {
-                                // we check if the condition given is an object or not
-                                shouldInclude &= (isEqual(entity, condition, conditions[condition]))
+                                const entityConditionValue = getValueOfEntityGivenCondition(entity, condition)
+                                let doesEntityHaveConditionValueForCondition
+                                if (conditions[condition] instanceof Object) {
+                                    doesEntityHaveConditionValueForCondition = (entityConditionValue === JSON.stringify(conditions[condition]))
+                                } else {
+                                    doesEntityHaveConditionValueForCondition = (entityConditionValue === conditions[condition])
+                                }
+                                shouldInclude &= (doesEntityHaveConditionValueForCondition)
                             }
                         }
                         return shouldInclude
@@ -47,7 +53,7 @@ const find = (entity, conditions) => {
                         if (conditions._order) {
                             if (conditions._order === 'asc') {
                                 entities.sort((A, B) => {
-                                    if (A[conditions._sort] < B[conditions._sort]) {
+                                    if (getValueOfEntityGivenCondition(A, conditions._sort) < getValueOfEntityGivenCondition(B, conditions._sort)) {
                                         return -1
                                     } else {
                                         return 1
@@ -55,7 +61,7 @@ const find = (entity, conditions) => {
                                 })
                             } else if (conditions._order === 'desc') {
                                 entities.sort((A, B) => {
-                                    if (A[conditions._sort] > B[conditions._sort]) {
+                                    if (getValueOfEntityGivenCondition(A, conditions._sort) > getValueOfEntityGivenCondition(B, conditions._sort)) {
                                         return -1
                                     } else {
                                         return 1
@@ -65,7 +71,7 @@ const find = (entity, conditions) => {
                         } else {
                             // default order is asc if _sort is defined.
                             entities.sort((A, B) => {
-                                if (A[conditions._sort] < B[conditions._sort]) {
+                                if (getValueOfEntityGivenCondition(A, conditions._sort) < getValueOfEntityGivenCondition(B, conditions._sort)) {
                                     return -1
                                 } else {
                                     return 1
@@ -82,19 +88,19 @@ const find = (entity, conditions) => {
         })
     })
 }
-const isEqual = (entity, conditionName, conditionValue) => {
+const getValueOfEntityGivenCondition = (entity, conditionName) => {
     const positionOfFirstDotOperator = conditionName.indexOf('.')
     if (positionOfFirstDotOperator !== -1) {
         const keyToFilterOn = conditionName.slice(0, positionOfFirstDotOperator)
-        return isEqual(entity[keyToFilterOn], conditionName.slice(positionOfFirstDotOperator + 1), conditionValue)
+        return getValueOfEntityGivenCondition(entity[keyToFilterOn], conditionName.slice(positionOfFirstDotOperator + 1))
     } else {
         if (!entity || !entity[conditionName]) {
-            return false
+            return null
         }
-        if (conditionValue instanceof Object) {
-            return JSON.stringify(entity[conditionName]) == JSON.stringify(conditionValue)
+        if (entity[conditionName] instanceof Object) {
+            return JSON.stringify(entity[conditionName])
         } else {
-            return entity[conditionName] == conditionValue
+            return entity[conditionName]
         }
     }
 }
@@ -114,6 +120,10 @@ const entityPresent = (entity) => {
 
 const insert = (entity, item) => {
     return new Promise((resolve, reject) => {
+        if (!item.id) {
+            reject(new errors.IdNotPresentError())
+            return
+        }
         fs.readFile(path.join(__dirname, 'datastore/metadata.json'), (err, metaData) => {
             if (err) {
                 reject(new errors.TransactionFailedError())
@@ -173,6 +183,10 @@ const rollBack = (fileName, oldData) => {
 
 const update = (entity, item) => {
     return new Promise((resolve, reject) => {
+        if (!item.id) {
+            reject(new errors.IdNotPresentError())
+            return
+        }
         entityPresent(entity).then(isEntityPresent => {
             if (!isEntityPresent) {
                 reject(new errors.EntityNotPresentError())
