@@ -12,6 +12,13 @@ class NoSuchEntityError extends Error {
     }
 }
 
+class IdNotPresentError extends Error {
+    constructor () {
+        super()
+        this.message = 'id is a compulsory property of every entity. Make sure id is present in the JSON.'
+    }
+}
+
 class TransactionFailedError extends Error {
     constructor () {
         super()
@@ -30,5 +37,6 @@ module.exports = {
     EntityNotPresentError,
     NoSuchEntityError,
     TransactionFailedError,
-    IntegrityConstraintViolationError
+    IntegrityConstraintViolationError,
+    IdNotPresentError
 }
