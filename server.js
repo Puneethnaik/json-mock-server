@@ -128,6 +128,8 @@ const handleError = (error, res) => {
         res.status(403).send(error.message)
     } else if (error instanceof datastoreErrors.EntityNotPresentError) {
         res.status(403).send(error.message)
+    } else if (error instanceof datastoreErrors.IdNotPresentError) {
+        res.status(403).send(error.message)
     } else {
         res.status(500).send('It is not you. It is us. Please refresh and try again.')
     }
