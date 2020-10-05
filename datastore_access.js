@@ -99,14 +99,14 @@ const find = (entity, conditions) => {
     })
 }
 const getValueOfEntityGivenCondition = (entity, conditionName) => {
+    if (!(entity instanceof Object)) {
+        return null
+    }
     const positionOfFirstDotOperator = conditionName.indexOf('.')
     if (positionOfFirstDotOperator !== -1) {
         const keyToFilterOn = conditionName.slice(0, positionOfFirstDotOperator)
         return getValueOfEntityGivenCondition(entity[keyToFilterOn], conditionName.slice(positionOfFirstDotOperator + 1))
     } else {
-        if (!entity || !entity[conditionName]) {
-            return null
-        }
         if (entity[conditionName] instanceof Object) {
             return JSON.stringify(entity[conditionName])
         } else {
