@@ -21,15 +21,10 @@ const find = (entity, conditions) => {
                 let entities = data[entity]
                 if (conditions) {
                     for (const condition in conditions) {
-                        try {
+                        if (conditions[condition].indexOf('{') == -1) {
+                        } else {
+                            // condition is an Object
                             conditions[condition] = JSON.parse(conditions[condition])
-                        } catch (e) {
-                            if (e instanceof SyntaxError) {
-                                // condition is not an object
-                            } else {
-                                reject(new errors.TransactionFailedError())
-                                return
-                            }
                         }
                     }
                     entities = entities.filter((entity) => {
