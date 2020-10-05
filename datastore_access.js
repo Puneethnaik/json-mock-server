@@ -75,7 +75,11 @@ const find = (entity, conditions) => {
                         }
                     }
                 }
-                resolve(entities)
+                if (entities.length === 0) {
+                    reject(new errors.NoSuchEntityError())
+                } else {
+                    resolve(entities)
+                }
             })
         }, (err) => {
             console.log(err)
