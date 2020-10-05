@@ -24,7 +24,18 @@ const find = (entity, conditions) => {
                         if (conditions[condition].indexOf('{') == -1) {
                         } else {
                             // condition is an Object
-                            conditions[condition] = JSON.parse(conditions[condition])
+                            try {
+                                conditions[condition] = JSON.parse(conditions[condition])
+                            } catch (error) {
+                                if (error instanceof SyntaxError) {
+                                    // the condition includes { but it is not in correct JSON notation.
+                                    // Do nothing here. Consider it as a string and go on.
+                                } else {
+                                    // it should not reach here
+                                    reject(new errors.TransactionFailedError())
+                                    return
+                                }
+                            }
                         }
                     }
                     entities = entities.filter((entity) => {
