@@ -3,7 +3,7 @@ const fs = require('fs')
 const path = require('path')
 
 const errors = require('./datastore_errors')
-
+// GET /mermaids
 const find = (entity, conditions) => {
     return new Promise((resolve, reject) => {
         entityPresent(entity).then((isEntityPresent) => {
@@ -107,11 +107,12 @@ const getValueOfEntityGivenCondition = (entity, conditionName) => {
         const keyToFilterOn = conditionName.slice(0, positionOfFirstDotOperator)
         return getValueOfEntityGivenCondition(entity[keyToFilterOn], conditionName.slice(positionOfFirstDotOperator + 1))
     } else {
-        if (entity[conditionName] instanceof Object) {
-            return JSON.stringify(entity[conditionName])
-        } else {
-            return entity[conditionName]
-        }
+        // if (entity[conditionName] instanceof Object) {
+        //     return JSON.stringify(entity[conditionName])
+        // } else {
+        //     return entity[conditionName]
+        // }
+        return JSON.stringify(entity[conditionName])
     }
 }
 
