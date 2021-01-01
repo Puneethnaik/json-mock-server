@@ -3,7 +3,7 @@ const fs = require('fs')
 const path = require('path')
 
 const errors = require('./datastore_errors')
-
+// GET /mermaids
 const find = (entity, conditions) => {
     return new Promise((resolve, reject) => {
         entityPresent(entity).then((isEntityPresent) => {
@@ -21,14 +21,20 @@ const find = (entity, conditions) => {
                 let entities = data[entity]
                 if (conditions) {
                     for (const condition in conditions) {
-                        try {
-                            conditions[condition] = JSON.parse(conditions[condition])
-                        } catch (e) {
-                            if (e instanceof SyntaxError) {
-                                // condition is not an object
-                            } else {
-                                reject(new errors.TransactionFailedError())
-                                return
+                        if (conditions[condition].indexOf('{') == -1) {
+                        } else {
+                            // condition is an Object
+                            try {
+                                conditions[condition] = JSON.parse(conditions[condition])
+                            } catch (error) {
+                                if (error instanceof SyntaxError) {
+                                    // the condition includes { but it is not in correct JSON notation.
+                                    // Do nothing here. Consider it as a string and go on.
+                                } else {
+                                    // it should not reach here
+                                    reject(new errors.TransactionFailedError())
+                                    return
+                                }
                             }
                         }
                     }
@@ -80,7 +86,11 @@ const find = (entity, conditions) => {
                         }
                     }
                 }
-                resolve(entities)
+                if (entities.length === 0) {
+                    reject(new errors.NoSuchEntityError())
+                } else {
+                    resolve(entities)
+                }
             })
         }, (err) => {
             console.log(err)
@@ -89,19 +99,20 @@ const find = (entity, conditions) => {
     })
 }
 const getValueOfEntityGivenCondition = (entity, conditionName) => {
+    if (!(entity instanceof Object)) {
+        return null
+    }
     const positionOfFirstDotOperator = conditionName.indexOf('.')
     if (positionOfFirstDotOperator !== -1) {
         const keyToFilterOn = conditionName.slice(0, positionOfFirstDotOperator)
         return getValueOfEntityGivenCondition(entity[keyToFilterOn], conditionName.slice(positionOfFirstDotOperator + 1))
     } else {
-        if (!entity || !entity[conditionName]) {
-            return null
-        }
-        if (entity[conditionName] instanceof Object) {
-            return JSON.stringify(entity[conditionName])
-        } else {
-            return entity[conditionName]
-        }
+        // if (entity[conditionName] instanceof Object) {
+        //     return JSON.stringify(entity[conditionName])
+        // } else {
+        //     return entity[conditionName]
+        // }
+        return JSON.stringify(entity[conditionName])
     }
 }
 
